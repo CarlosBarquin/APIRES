@@ -30,7 +30,7 @@ const Index = ({ data}: { data: Contact }) => {
     
     return (
       <>
-        <h1>DATOS</h1>
+        <h1>DAT2OS</h1>
         {data.name}
         {data.phone}
 
