@@ -12,7 +12,7 @@ type Contact = {
 const Formulario = styled.div`
   border: 1px solid #ccc;
   display: grid;
-  grid-template-columns: 1fr 1fr 0.3fr;
+  grid-template-columns: 1fr 1fr 1fr 0.3fr;
   grid-gap: 1px;
   background-color: #fff;
   color: #444;
@@ -30,6 +30,19 @@ const Celda = styled.div`
   padding: 10px 20px 10px 20px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+`;
+
+const Celda2 = styled.div`
+  padding: 10px 20px 10px 20px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  background-color: powderblue;
+  transition: background-color .5s;
+
+  &:hover {
+    background-color: gold;
+
+  }
 `;
 
 const Titulo = styled.div`
@@ -87,7 +100,13 @@ const MyComponent = () => {
 
   const [name, setName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [name2, setName2] = useState<string>("");
+  const [phone2, setPhone2] = useState<string>("");
   const [cambia, setCambia] = useState<number>(0);
+
+  const [visi, setVisi] = useState<boolean>(false)
+  const [ID , setID] = useState<string>("")
+
 
 
   useEffect(() => {
@@ -106,12 +125,13 @@ const MyComponent = () => {
   }, [name, phone, cambia])
 
 
+
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
 
     if(name == "" || phone == "") return
 
-    const response = await fetch("http://localhost:8080/addContact", {
+    await fetch("http://localhost:8080/addContact", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -122,7 +142,9 @@ const MyComponent = () => {
     setCambia(cambia+1)
   };
 
-
+  const handleVisi = () =>{
+    setVisi(!visi)
+  }
  
   return (
     <div>
@@ -131,29 +153,60 @@ const MyComponent = () => {
         <Header>Name</Header>
         <Header>Phone</Header>
         <Header></Header>
+        <Header></Header>
         
         <input placeholder="Name" type="text" onChange={(e) => setName(e.target.value)}></input>
-        <input placeholder="Age" type="text"onChange={(e) => setPhone(e.target.value)} ></input>
+        <input placeholder="Age" type="number"onChange={(e) => setPhone(e.target.value)} ></input>
         <Button2 onClick={handleSubmit}>ADD</Button2>
+        <Celda></Celda>
         {contacts.map((contact, index) => {
           const id = (contact._id).toString()
           return(
             <>
               <Celda>{<Link href={`/info/${id}`}>{contact.name}</Link>}</Celda>
-              <Celda>{contact.phone}</Celda>
+              <Celda2 onClick={async ()=>{
+                handleVisi()
+                const ID2 = (contact._id).toString()
+                setID(ID2)
+                
+
+                
+              }}>{contact.phone}</Celda2>
               <Button onClick={async () => {
-                const _id = (contact._id).toString()
                 await fetch("http://localhost:8080/deleteContact", {
                   method: "DELETE",
                   headers: {
                     "Content-Type": "application/json",
                   },
-                  body: JSON.stringify({ _id }),
+                  body: JSON.stringify({ _id : id }),
                   
                 });
                 setCambia(cambia-1)
               }}>DELETE</Button>
 
+  
+                <Link href={`/info3/${id}`}>
+                  <Button>UPDATE</Button>  
+                </Link>   
+
+              {(visi && ID === contact._id.toString() && (
+                <>
+                    <input placeholder="Name" type="text" onChange={(e) => setName2(e.target.value)}></input>
+                    <input placeholder="Age" type="number"onChange={(e) => setPhone2(e.target.value)} ></input>
+                    <Button2 onClick={async () =>{
+                        await fetch("http://localhost:8080/updateContact", {
+                          method: "POST",
+                          headers: {
+                            "Content-Type": "application/json",
+                          },
+                          body: JSON.stringify({ _id : id , name: name2, phone: phone2 }),
+                          
+                        });
+                        setCambia(cambia+1)
+                    }}>UPDATE</Button2>
+                      <Celda></Celda>
+                </>
+              ))}
             </>
           )
 

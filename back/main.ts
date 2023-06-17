@@ -108,6 +108,23 @@ async function handler(req: Request): Promise<Response> {
             return new Response("Invalid data", { status: 403 });
           }
         }
+        case "/updateContact": {
+          if (req.body) {
+            const body = await req.json();
+            console.log("Body:", body);
+            const id = body._id
+            try {
+              const {name, phone} = body;
+
+              await UsersCollection.updateOne({ _id: new ObjectId(id) }, { $set: { name, phone } });
+              return new Response("OK", { status: 200 });
+            } catch (e) {
+              return new Response(e, { status: 500 });
+            }
+          } else {
+            return new Response("Invalid data", { status: 403 });
+          }
+        }
         default:
           return new Response("Invalid route", { status: 404 });
       }
